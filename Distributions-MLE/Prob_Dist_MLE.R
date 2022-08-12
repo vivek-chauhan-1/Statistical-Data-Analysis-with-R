@@ -1,6 +1,6 @@
 #' ---
 #' title: "ASSIGNMENT 1"
-#' author: "Vivek Chauhan (20955627)"
+#' author: "Vivek Chauhan"
 #' date: "Feb 3rd, 2022"
 #' ---
 
