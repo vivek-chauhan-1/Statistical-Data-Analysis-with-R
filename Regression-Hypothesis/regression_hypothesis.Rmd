@@ -1,0 +1,392 @@
+---
+title: "Assignment_2"
+author: "Vivek_Chauhan"
+date: "March 19, 2022"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+library(RColorBrewer)
+library(fitdistrplus)
+library(plot.matrix)
+library(BatchGetSymbols)
+library(ggplot2)
+options(scipen = 999)
+```
+
+
+### Q1. Hypothesis testing with R:
+
+#### a.
+```{r hypothesis}
+
+#setting a seed for uniform results with different run
+set.seed(4)
+N<- 50
+#rnorm to get N random numbers from normal distribution with defined mean and sd
+x <- rnorm(N, mean = 0, sd = 2)
+y <- rnorm(N, mean = 2 + 1.5*x ,sd = 10)
+#scatter plot of dependent variable 'y' and independent variable 'x'
+plot(x,y,col = 'blue', main = "Hypothesis testing", xlab = "x_label", ylab = 'y_label')
+
+#linear regression for getting relationship between x and y
+lm_fit <- lm(y ~ x)
+summary(lm_fit)
+
+#alternative way to create a fit line
+#beta0 <- lm_fit$coefficients[1]
+#beta1 <- lm_fit$coefficients[2]
+#y_pred = beta0 + beta1*x
+#lines(x, y_pred, type ='l',col='red', lwd= 2)
+
+#adding a linear regression fit line to data
+abline(lm_fit,col="red", lty=2, lwd=2,type ='l')
+
+#significance level
+alpha <- 0.05
+p_value <- summary(lm_fit)$coefficients[2,4]
+print(paste("p-value is :",p_value))
+if (p_value < alpha) {
+  print("We will reject NULL hypthesis as the predictors are not significant")
+}else{
+  print("We cannot reject NULL hypthesis as the predictors are significant")
+}
+```
+
+#### b. 
+We reject our NULL hypothesis (beta1 = 0) in favour of alternate hypothesis if the p-value is less than the predefiened significance value(aplha = 0.05 in our case). If the p-value is above alpha-value, we fail to reject NULL hypothesis. So, in our case, *we reject the NULL hypothesis*
+
+#### c.
+```{r hypothesis2, echo=FALSE}
+
+#setting a seed for uniform results with different run
+set.seed(200)
+
+N<- 50
+#rnorm to get N random numbers from normal distribution with defined mean and sd
+x <- rnorm(N, mean = 0, sd = 2)          
+y <- rnorm(N, mean = 2 + 1.5*x ,sd = 10)
+#scatter plot of dependent variable 'y' and independent variable 'x'
+plot(x,y,col = 'blue', main = "Hypothesis testing", xlab = "x_label", ylab = 'y_label')
+
+#linear regression for getting relationship between x and y
+lm_fit <- lm(y ~ x)
+summary(lm_fit)
+
+#alternative way to create a fit line
+#beta0 <- lm_fit$coefficients[1]
+#beta1 <- lm_fit$coefficients[2]
+#y_pred = beta0 + beta1*x
+#lines(x, y_pred, type ='l',col='red', lwd= 2)
+
+#adding a linear regression fit line to data
+abline(lm_fit,col="red", lty=2, lwd=2,type ='l')
+
+#significanc level
+alpha <- 0.05
+p_value <- summary(lm_fit)$coefficients[2,4]
+#testing for predictor significance
+print(paste("p-value is :",p_value))
+if (p_value > alpha) {
+  print("We can't reject NULL hypthesis as the predictors are significant")
+}else{
+  print("We will reject NULL hypthesis as the predictors are not significant")
+}
+```
+
+*We cant reject the NULL hypothesis* as p value is greater than alpha-value.
+
+As we are using random numbers , they should ideally be uncorrelated and testing with different seeds showcase how p-hacking could be used on random data.
+
+
+
+
+#### d. Limitations of the classical Hypothesis testing :
+
+Before we discuss limitations of classical hypothesis testing, we need to define classical hypothesis testing , which is as follows: 
+"Classical statistical hypothesis testing involves the test of a null hypothesis against an alternative hypothesis." [1]
+In this approach, we need to set out to solve for an intended hypothesis and goal is prove or disprove hypotheisbased on our assumptions, probabilistic calculations done prior to data gathering (without seeing the data). The hypothesis testing can be a one tailed or two tailed test.We need to include sampling error in our test to account for variability in a statistic from one sample to another. The rejection criteria, type of test being utilized should be decided by researcher. Limitations to this approach based on the [article] (https://www.buzzfeednews.com/article/stephaniemlee/brian-wansink-cornell-p-hacking) are :
+
+* Slicing and dicing a dataset for an impressive-looking pattern.(Creating hypothesis to fit patterns that emerged after experiment)
+* Excessive data massaging (Mechanisms for smoothing and handling outliers).
+* Excluding data points by choice.
+* Excluding / including variables/interactions arbitrarily by choice to fit data better.
+* COllecting or selecting data or statistical analysis until non significant result becomes significant.
+* Using sample sizes that don't add up
+* Using static significance levels (arbitrary cutoffs) for p-value as the thresholds for metric evaluation.
+* No mechanism/ methods to test against p-hacking
+* Circular reasoning : testing hypothesis against the data that suggested the hypothesis/patterns
+* Scientific findings that cannot be replicated.
+* Data imbalance (lack of sampling) and missing data
+* NOn - generalizable hypothesis 
+* p-value is sensitive and easily misintrepreted.
+
+
+
+References:
+[1] From URL [link] (https://cs.brown.edu/courses/csci2951-n/resources/AACB2014-classical-hypothesis-testing.pdf
+
+
+
+#### e. Prevelance of p-hacking in Science :
+
+There are two types of biasing as discussed in the article:
+1. Selection Bias or File Drawer Effect
+2. Inflation Bias or Selective Reporting (p-hacking)
+
+The author has pointed out that many published results are false positives hence quantifying p-hacking is important as publication of false positives effects scientific progress. The article has utilized the p-curve to identify the impact of p-hacking prevalent in a wide range of scientific areas. Data mining is utilized to collect p-values from previously published relevant literature.This is also called meta - analysis which refers to the statistical analysis of the data from independent primary studies focused on the same question, which aims to generate a quantitative estimate of the studied phenomenon, for example, the effectiveness of the intervention (Gopalakrishnan and Ganeshkumar, 2013)[1]. These values are then plotted on p-curve to identify p-hacking. These value are then compared to the p-curves drawn from data from primary literature. Interpretation of these curves is focused on identifying evidence for p-hacking when looking at specific hypotheses that researchers had chosen as being of general interest.They relayed on p-curves for interpretation and to seek evidence for p-hacking.
+
+The article has established that p-hacking is quite prevalent in science and has been highlighted through metalearning approach used in [article] (https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1002106) . Common practises that lead to p-hacking including below but not limited to are:
+* Carrying out analysis mid-way through data collection process
+* Excluding / including recorded responses from experiment while analysis  and /or reporting.
+* Handling noise and outliers in data based on how it relates to better p-value.
+* Halting data exploration if a significant p-value is obtained.
+
+These practise lead to p-hacked values in the literature and when such literature is  used for further analysis in same or other domains , it leads to dubious results. The results and experiments are not reproducable and limits novel and unexplored hypothesis.
+In science, such p-hacking is prevalent in social sciences, biological and health sciences, engineering as well as other domains where data collection is subject to many regulatory permissions and can't be easily reproduced and misleading p-values by chance cannot be validated and ripples into other research work explorations.
+Number of publications and impact factor of journals is used as a metric by Employers and funders alike to access a researcher's performance. Reputed journals are known to reject papers with statiscally non- significant result(based on arbitrary cutoffs irrespective of domains) and thus researchers are found to be guilty of p-hacking in sciences.
+
+References:
+[1] From URL [link] (https://www.frontiersin.org/articles/10.3389/fphys.2019.00203/full#:~:text=Meta%2Danalysis%20refers%20to%20the,Gopalakrishnan%20and%20Ganeshkumar%2C%202013)
+
+
+
+
+### 2.
+
+#### a.Potential challenges associated with using  a linear regression model are:
++ Linear regression is based on assumption that the outcome variable  is continous and errors are normally distributed. In this case, outcome variable is a dicrete and bounded variable with only two possible values(0 and 1), so the normality assumption of error term is violated, 
++ the residual plot would be skewed and hence iid assumption for error term is again violated.
++ The linear predictor poorly predicts the outcome variable (bad fit)
++ Vote intention(dependent variable) values would be incorrectly predicted by categorical independent variables (incorrectly relationship).
+
+
+
+#### b. 
+
+Outcome Distribution:
+Since the dependent variable is categorical, binomial logistic regression is the optimal choice of model.I uses the **binomial distribution** as the outcome distribution since its random variable is the sum of the repeated binary outcomes given the success probability and the number of trials .
+Link Function :logit as a linear link function because it takes univariate values and convert them to a scale of probablities that is between 0 and 
+
+P(Y = y) = (ny )py (1 −p)n−y
+where;
+n:number of trials
+p:success probability
+
+Link Function : g(θ) = β_0  + β_1x1 + β_2x2
+In the model, the linear predictors determines the probability of success p, given the link function g 
+
+Y ~ Binomial(n,p)
+g(p) = β_0  + β_1x1 + β_2x2
+
+In order to determine the link function, we can think of a problem by taking reverse of the link function:
+p = inverse of g (β_0  + β_1x1 + β_2x2)
+where p is the probability so the output of g-1 should lie between 0 and 1.
+
+The logistic function is defined as:
+ 1/ 1+e-x                                                      
+where ex is the exponential function.
+
+Using the logistic function as the inverse link function:
+Logistic-1(p)= β_0  + β_1x1 + β_2x2
+Logistic-1 (p)= logit (p) = β_0  + β_1x1 + β_2x2
+
+Using the logit link function, we have a complete model specification for binomial-logistic regression:
+Y ~ Binomial(n,p)
+logit (p) = β_0  + β_1x1 + β_2x2
+
+
+
+
+#### c.
+
+```{r voting_data}
+
+set.seed(100)
+#getwd()
+voting_df <- read.csv('C:\\Users\\hp\\Desktop\\Winter_22\\MSCI_718\\Assignment_2\\voting_data.csv')
+#voting_df
+
+#dem_vote = vote intention indicator between a republican & democrat candidate 
+#(0 =republican leaning, 1 = democrat leaning),
+#“marital_id” is a marital status indicator (0 = non-married, 1 = married),
+#and “state” is the state where the respondent lives.
+
+
+y<-voting_df$dem_vote
+x1<-voting_df$marital_id
+x2<-voting_df$state_id
+
+#to see the effect of marital status in intenstion to vote in isolation
+bn_fit_x1 <- glm(y ~ x1 , data = voting_df, family = "binomial")
+summary(bn_fit_x1)
+
+#to plot logistic regression
+#ggplot(voting_df, aes(x=marital_id, y=dem_vote)) + geom_point() +
+#  stat_smooth(method="glm", color="green", se=FALSE,
+#              method.args = list(family=binomial))
+
+#In R , the predictor x1 when categorical represents the difference from baseline, so we remove the intercept to see the complete effect on predictor
+#bn_fit_x1_without_intercept <- glm(y ~ x1 - 1 , data = voting_df, family = "binomial")
+#summary(bn_fit_x1_without_intercept)
+
+bn_fit <- glm(y ~ x1 + x2 , data = voting_df, family = "binomial")
+summary(bn_fit)
+
+```
+
+beta0 = -0.202665
+**Coeffecient related to x1** : beta1 = -0.726750 (std error = 0.028253) 
+Coeffecient is statistically significant (p-value < 0.05) and since it is negative, it is negatively related 
+
+Since, the value in R is compared to baseline , we include the interpretion term to evaluate the difference between voting intention (democrat and republic leaning) for non-married and married couples.
+when x1 = 0 => y = beta0 
+when x1 = 1 => y = beta0 + beta1 * 1
+
+so the difference between married and nonmarried is :  0.48578 - 0.726750 = -0.24884
+e<-1/ (1+ exp(0.24884))
+e = 0.438109
+
+interpretation : marital status(1=married) is associated with a 56% (1 – 0.44 = 0.56) reduction in the intention to vote .So, married people are less likely to vote than non-married for democrat. Non married people (marital_id = 0) is a baseline.
+
+#beta2 : alabama is a reference (baseline) state for comparison of change in voting intention between states (x2 #variable)
+
+#logistic curve centres around: -beta0/beta1 = 0.0002
+#beta1/4 = -0.18
+
+The model is not a good fit as the differnce between the Null Deviance and Residual Deviance.
+
+Lower value of AIC suggests "better" model, but it is a relative measure of model fit. It is used for model selection, i.e. it lets you to compare different models estimated on the same dataset.[1] AIC value is very high for our data and hence we can conclude that it is not a good fit.
+
+Note : The intercept differs when predictors for x1 and x2 are included compared to when only x21 is included.
+
+
+REference:
+[1] From [URL] : (https://stats.stackexchange.com/questions/187373/interpretation-of-aic-value )
+
+
+
+
+### 3 Hypothesis Testing
+
+```{r hypothesis_testing_2}
+hypothesis_testing <- function(N, Kw, Kb, R, S) {
+
+  #creating a mtrix to store probabilities for all possible cases
+  p_hypothesis <- matrix(NA, nrow= N+1 , ncol = (R+1))
+  #print(p_hypothesis)
+  sequence <- S
+  k<-1
+  #iterating over N for number of white balls in BAg A 
+  for (hypothesis in 0:N) {
+    #print(paste("N is : ", hypothesis))
+    #print(paste("Hypothesis of white balls in bag A is : ",hypothesis))
+    
+    # number of white and black balls in Bag A
+    bagA_w <- hypothesis
+    bagA_b <- N - hypothesis
+    #print(paste("White and black white balls in Bag A are : ", bagA_w, bagA_b))
+    p_final <- c()
+    #print(p_final)
+    
+    # when drawing R balls from bag A to BAg B, we check for all possible combinations of white and black balls
+    for (white_transfered_from_bagA in 0:R) {
+      
+      #print(paste("White balls transfered from A to B : ", white_transfered_from_bagA))
+      #p_final <- c()
+      
+      #initialised with one as used in multiplicating to calculate conditional probability  
+     conditional_probability <- 1
+     #restricting condition to check if there are that many balls of that color in bag while drawing from A to B
+     #if (white_transfered_from_bagA <= bagA_w) {
+     if (white_transfered_from_bagA <= bagA_w & ((R - white_transfered_from_bagA) <= bagA_b)) {
+       #print(paste("white_transfered_from_bagA is : ", white_transfered_from_bagA))
+      #number of white and black balls 
+       bagB_w <- Kw + white_transfered_from_bagA
+       bagB_b <- Kb + (R - white_transfered_from_bagA)
+       #print(paste("White and black white balls in Bag B are : ", bagB_w, bagB_b))
+       #iterating elementwise over sequence
+       for (s in sequence) {
+        
+         #print(paste("Ball in Sequential : ", s))
+         #only two possible scenarios: "W" and "b"
+         if (s == 'w') {
+           sequential_probability <- bagB_w / (bagB_b + bagB_w)
+           # decrease by one as that ball is drawn sequewntially without drop
+           bagB_w <- bagB_w - 1
+           #print(paste("Sequantial probability is :",sequential_probability))
+         }else{
+           sequential_probability <- bagB_b / (bagB_b + bagB_w)
+           bagB_b <- bagB_b - 1
+           #print(paste("Sequaential probability is :",sequential_probability))
+         }
+         conditional_probability <- conditional_probability * sequential_probability
+         #print(paste("Conditional probability is : ",conditional_probability ))
+         
+       }
+       #print(paste("Conditional probability is : ",conditional_probability ))
+       p_final <- append(p_final,conditional_probability)
+
+
+     }
+      else{
+        #print("In else")
+        #print(paste(k, white_transfered_from_bagA+1))
+        p_final <- append(p_final,NA)
+      }
+    }
+
+     
+    p_hypothesis[k, ] <- p_final
+     k<-k+1
+  }
+
+  #getting the rows and column from matrix representation that have the maximum values ,there are multiple values and hence calculating the single optimal value for composition if Bag A
+h_mat <- which(p_hypothesis == max(p_hypothesis,na.rm = T), arr.ind = TRUE) 
+probability_list <-c()
+value_list <- c()
+#iterating over all rows 
+for (i in 1:length(h_mat[,1])) {
+  # number of ways to pick white balls
+  white_to_pick <- h_mat[i,2] -1
+  #number of black balls to pick
+  Black_to_pick <- R - white_to_pick
+  White_in_bag_A <- h_mat[i,1] -1
+  Black_in_bag_A <- N - White_in_bag_A
+  # using combinatatorics to pick x white and y black balls from m,n white balls and balck balls respectively,..i.e using the formula to pick different number of color balls from bag having k different groups.
+  Probability <- (choose( White_in_bag_A , white_to_pick )* choose(Black_in_bag_A , Black_to_pick) ) / choose(N,R) 
+    #print(paste(white_to_pick,Black_to_pick,White_in_bag_A,Black_in_bag_A,Probability))
+    probability_list <- append(probability_list, Probability)
+    # to get the exact value [number of balls ] associated with the probablility
+    value_list <- append(value_list, White_in_bag_A)
+  #print(Probability)
+}  
+  
+  #print(max(probability_list,na.rm = T))
+print(which (probability_list== max(probability_list,na.rm = T)))
+print(paste("Optimal White balls in bag A are :",value_list[which (probability_list== max(probability_list,na.rm = T))]))
+print(paste("Optimal black balls in bag A are :",(N-value_list[which (probability_list== max(probability_list,na.rm = T))])))  
+  
+  #returning the resulting matrix representation
+  return(p_hypothesis)
+}
+
+#seq_s<-c('b','w','w','w','b','b')
+# defining a sequence vector
+seq_s<-c('w','b','b' ,'w','b','w')
+#call to the main function with values as given Q3.b but any values can be used
+f <- hypothesis_testing(20,10,10,5,seq_s)
+f
+#maximum value from matrix
+max(f,na.rm = T)
+#array index for maximum values from matrix
+which(f == max(f,na.rm = T))
+# print(paste("Matrix representation of all possible probabilities for given values of N and R ",f))
+# print(paste("The matrix rows that gives the maximum probability : ",which(f == max(f,na.rm = T))))
+# print(paste("The maximum probability is : ",max(f,na.rm = T)))
+
+```
+### 3.b
+Hypothesis that we transfer 3 white and 2 black from Bag A to Bag B is the most optimal for drawing 5 balls from Bag A to Bag B. The composition of white and black balls in BAg A is 12 and 8 respectively.
